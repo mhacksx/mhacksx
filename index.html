@@ -1,0 +1,147 @@
+
+<div id="canvases"></div>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>Starter Template for Bootstrap</title>
+        <!-- Bootstrap core CSS -->
+        <link href="bootstrap-4.0.0-beta/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Custom styles for this template -->
+        <link href="/style.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+    </head>
+    <body>
+        <nav class="navbar navbar-light bg-primary fixed-top">
+            <form class="form-inline my-2 my-lg-0">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="groupcode" placeholder="Group Code">
+                    <div class="input-group-btn">
+                        <button id="dropdown1" type="button" onclick="submit()" class="btn btn-secondary"><i class="mdi mdi-check-circle-outline"></i></button>
+                        <button style="height:2.4em" type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="sr-only">Toggle dropdown</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" onclick="function2()">Join a group</a>
+                            <a class="dropdown-item" onclick="function1()">Create a group</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <a class="navbar-brand">Stegamsg</a>
+        </nav>
+        <script>
+            var a = 1;
+            function function1() {
+                a = 2
+                $("#dropdown1").html("<i class=\"mdi mdi-plus-circle-outline\"></i>")
+            }
+            function function2() {
+                a = 1
+                $("#dropdown1").html("<i class=\"mdi mdi-check-circle-outline\"></i>")
+            }
+            
+            function submit() {
+                document.cookie = "tempcookie=" + $("#groupcode").val();
+                document.cookie = "tempcookie2=" + a
+              
+                if (a == 2) {
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        document.getElementById("demo").innerHTML = this.responseText;
+                        }
+                    };
+                    xhttp.open("POST", "/new", true);
+                    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    xhttp.send("fname=Henry&lname=Ford");
+                    
+                }
+                window.location = "/";
+            }
+        </script>
+        <div class="container">
+            <div class="d-flex flex-column">
+            </div>
+            <div class="footer navbar fixed-bottom">
+                <input type="text" class="form-control align-bottom" placeholder="Enter a message..." id="textbox"></input>
+            </div>
+
+        </div>
+        <!-- /.container -->
+        <!-- Bootstrap core JavaScript
+            ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script>window.jQuery || document.write('<script src="bootstrap-4.0.0-beta/assets/js/vendor/jquery.min.js"><\/script>')</script>
+        <script src="bootstrap-4.0.0-beta/assets/js/vendor/popper.min.js"></script>
+        <script src="bootstrap-4.0.0-beta/dist/js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="bootstrap-4.0.0-beta/assets/js/ie10-viewport-bug-workaround.js"></script>
+
+
+        <!-- scripts to communicate with node -->
+        <script src="lsbtools.min.js"></script>
+        <script>
+            function getDataFromImage(imageName, key, callback_)
+            {
+                var image = new Image();
+                
+                image.onload = function() {
+                    canvas = document.createElement('canvas')
+                    context = canvas.getContext('2d')
+                    
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                    imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    pixels = imageData['data'];
+                    options = {
+                        shuffle: true, // spread data across image instead of writing sequentially
+                        matrix: true, // use matrix encoding to minimize changes
+                        mask: true, // mask data with stream of random bytes
+                        key: key, // array of bytes used as key for shuffling and masking
+                        pm1code: true  // use ±1 encoding instead of LSB flip
+                    };
+                    
+                    message = lsbTools.read(pixels, options)
+                    messageString = ""
+                    
+                    for (x = 0; x < message.length; ++x)
+                        messageString += String.fromCharCode(message[x])
+                    
+                    callback_({"Text":messageString, "Canvas":canvas});
+                }
+                
+                image.src = imageName;
+            };
+
+        </script>
+
+        <script>
+            var socket = io.connect('/');
+            
+            socket.on('in', function (fileName) {
+                getDataFromImage(fileName, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0], function(data) {
+                    $("#canvases").append(data['Canvas']);
+                    $("#canvases").append(data['Text']);
+                });
+            });
+            
+            $('#textbox').keyup(function(e){
+                if(e.keyCode == 13)
+                {
+                    socket.emit('out', $("#textbox").val());
+                    $("#textbox").val("");
+                }
+            });
+        </script>
+    </body>
+</html>
+

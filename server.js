@@ -71,5 +71,4 @@ io.on('connection', function (socket) {
             socket.emit('in', imageURL);
         });
     });
-    
 });
