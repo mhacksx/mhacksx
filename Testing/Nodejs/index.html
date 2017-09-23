@@ -3,9 +3,8 @@
 <link rel="stylesheet" href="/game.css">
 
 
-<canvas id="canvas"></canvas>
+<div id="canvases"></div>
 <body>
-<div id="chat"></div>
 <input id="textbox"></input>
 </body>
 
@@ -13,22 +12,17 @@
 <script>
     function getDataFromImage(imageName, key, callback_)
     {
-        
         var image = new Image();
         
         image.onload = function() {
             canvas = document.createElement('canvas')
             context = canvas.getContext('2d')
             
-            console.log(imageName)
-            console.log(image.width);
-            console.log(image.height);
-            
             canvas.width = image.width;
             canvas.height = image.height;
             context.drawImage(image, 0, 0, canvas.width, canvas.height);
             imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                    
+            
             pixels = imageData['data'];
             options = {
                 shuffle: true, // spread data across image instead of writing sequentially
@@ -38,8 +32,14 @@
                 pm1code: true  // use ±1 encoding instead of LSB flip
             };
             
-            a = lsbTools.read(pixels, options)
-            callback_(a)
+            message = lsbTools.read(pixels, options)
+            
+            messageString = ""
+            
+            for (x = 0; x < message.length; ++x)
+                messageString += String.fromCharCode(message[x])
+            
+            callback_({"Text":messageString, "Canvas":canvas});
         }
         
         image.src = imageName;
@@ -48,7 +48,7 @@
 </script>
 
 <script>
-    var socket = io.connect('http://localhost:8000');
+    var socket = io.connect('/');
     
     socket.on('news', function (data) {
         console.log(data);
@@ -57,11 +57,9 @@
     });
     
     socket.on('in', function (fileName) {
-        console.log('got')
         getDataFromImage(fileName, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0], function(data) {
-            console.log(data)
-            console.log(fileName);
-            $("#chat").append(JSON.stringify(data));
+            $("#canvases").append(data['Canvas']);
+            $("#canvases").append(data['Text']);
         });
     });
     
