@@ -1,0 +1,28 @@
+{
+  "name": "mhacksx",
+  "version": "0.0.0",
+  "description": "Submission to MHacks X.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mhacksx/mhacksx.git"
+  },
+  "keywords": [
+    "mhacks"
+  ],
+  "author": "iam4722202468, keeferrourke, sabuammer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mhacksx/mhacksx/issues"
+  },
+  "homepage": "https://github.com/mhacksx/mhacksx#readme",
+  "dependencies": {
+    "express": "^4.15.4",
+    "lsbtools": "0.0.1",
+    "png-js": "^0.1.1",
+    "socketio": "^1.0.0"
+  }
+}
