@@ -33,7 +33,6 @@
             };
             
             message = lsbTools.read(pixels, options)
-            
             messageString = ""
             
             for (x = 0; x < message.length; ++x)
@@ -49,12 +48,6 @@
 
 <script>
     var socket = io.connect('/');
-    
-    socket.on('news', function (data) {
-        console.log(data);
-        
-        $("#chat").append(JSON.stringify(data));
-    });
     
     socket.on('in', function (fileName) {
         getDataFromImage(fileName, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0], function(data) {
