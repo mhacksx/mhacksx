@@ -1,6 +1,7 @@
 import os, requests, bs4, time, urllib
 
 while True:
+	imageFolder = ''
 	urlList = []
 	unique = False # Flag to see if new url has been added
 	scriptPath = os.path.dirname(__file__)
@@ -15,7 +16,10 @@ while True:
 if os.path.getsize(urlFileName) > 0:
 	urlList = [x.strip() for x in urlFileList.readlines()]
 url = 'https://www.reddit.com/r/memes'
-imageFolder = os.path.join(scriptPath, 'Images') # Folder to save images in.
+if os.path.isdir(os.path.join(scriptPath, 'Images')):
+	imageFolder = os.path.join(scriptPath, 'Images')
+else:
+	imageFolder = str(os.makedirs(os.path.join(scriptPath, 'Images'))) # Creates folder to save images in.
 os.chdir(imageFolder)
 
 for h in range(numIterations):
