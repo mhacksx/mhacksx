@@ -1,0 +1,15 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" href="/game.css">
+
+<script>
+    var socket = io.connect('http://localhost:8000');
+    
+    $('#textbox').keyup(function(e){
+        if(e.keyCode == 13)
+        {
+            socket.emit('out', $("#textbox").val());
+            $("#textbox").val("");
+        }
+    });
+</script>

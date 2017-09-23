@@ -1,0 +1,75 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" href="/game.css">
+
+
+<canvas id="canvas"></canvas>
+<body>
+<div id="chat"></div>
+<input id="textbox"></input>
+</body>
+
+<script src="lsbtools.min.js"></script>
+<script>
+    function getDataFromImage(imageName, key, callback_)
+    {
+        
+        var image = new Image();
+        
+        image.onload = function() {
+            canvas = document.createElement('canvas')
+            context = canvas.getContext('2d')
+            
+            console.log(imageName)
+            console.log(image.width);
+            console.log(image.height);
+            
+            canvas.width = image.width;
+            canvas.height = image.height;
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    
+            pixels = imageData['data'];
+            options = {
+                shuffle: true, // spread data across image instead of writing sequentially
+                matrix: true, // use matrix encoding to minimize changes
+                mask: true, // mask data with stream of random bytes
+                key: key, // array of bytes used as key for shuffling and masking
+                pm1code: true  // use ±1 encoding instead of LSB flip
+            };
+            
+            a = lsbTools.read(pixels, options)
+            callback_(a)
+        }
+        
+        image.src = imageName;
+    };
+
+</script>
+
+<script>
+    var socket = io.connect('http://localhost:8000');
+    
+    socket.on('news', function (data) {
+        console.log(data);
+        
+        $("#chat").append(JSON.stringify(data));
+    });
+    
+    socket.on('in', function (fileName) {
+        console.log('got')
+        getDataFromImage(fileName, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0], function(data) {
+            console.log(data)
+            console.log(fileName);
+            $("#chat").append(JSON.stringify(data));
+        });
+    });
+    
+    $('#textbox').keyup(function(e){
+        if(e.keyCode == 13)
+        {
+            socket.emit('out', $("#textbox").val());
+            $("#textbox").val("");
+        }
+    });
+</script>
