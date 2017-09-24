@@ -15,6 +15,7 @@
         <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
     </head>
     <body>
+        
         <nav class="navbar navbar-light gradient0 fixed-top">
             <div class="form-inline my-2 my-lg-0">
                 <div class="input-group">
@@ -32,6 +33,11 @@
                 </div>
             </div>
             <a class="navbar-brand">Stegamsg</a>
+            
+            <div class="form-inline">
+                <a class="btn btn-outline-success my-2 my-sm-0" target="_blank" href="https://github.com/mhacksx/mhacksx">Github</a>
+                <a class="btn btn-outline-success my-2 my-sm-0" target="_blank" href="https://devpost.com/software/stegamsg">Devpost</a>
+            </div>
         </nav>
         <script>
             var a = 1;
@@ -120,7 +126,7 @@
 
                     // now redraw with better dimensions
                     var ratio = image.height / image.width;
-                    canvas.width = window.innerWidth / 3 ;
+                    canvas.width = window.innerWidth / 5 ;
                     canvas.height = ratio * canvas.width;
                     context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
