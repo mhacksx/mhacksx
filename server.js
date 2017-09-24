@@ -6,8 +6,13 @@ var bodyParser = require('body-parser')
 var fs = require('fs'),
     PNG = require('pngjs').PNG,
     lsbTools = require('lsbtools');
-    
+
+var cookie = require('cookie');
+
 server.listen(8000);
+
+groups = []
+groups.push({"Name":"esdfsd", "Key":[1,2,3,4,5,6,7,8,9,0]})
 
 app.use(express.static(__dirname + '/static'));
 app.use(bodyParser.urlencoded({extended: true}));
@@ -16,9 +21,43 @@ app.get('/', function (req, res) {
     res.sendfile(__dirname + '/index.html');
 });
 
+function search(nameKey, myArray){
+    for (var i=0; i < myArray.length; i++) {
+        if (myArray[i].Name === nameKey) {
+            return myArray[i];
+        }
+    }
+}
+
+function randomKey()
+{
+    array = []
+    for(var x = 0; x <= 10; x++)
+	{
+        a = Math.floor(Math.random() * 10);
+        array.push(a)
+        
+        if(x == 10)
+			return array;
+    }
+}
+
 app.post('/new', function (req, res) {
     console.log(req.body)
-    res.end();
+    
+    if (search(req.body.groupname, groups) === undefined)
+    {
+        console.log("Adding group " + req.body.groupname)
+        groups.push({"Name":req.body.groupname,"Key":randomKey()})
+        res.send('Test', 200);
+        res.end();
+    } else
+    {
+        console.log("Group found key");
+        res.send('Test', 200);
+        res.end();
+    }
+    
 });
 
 function generateHash()
@@ -66,9 +105,33 @@ function createImage(inputImage, message, key, callback_)
 }
 
 io.on('connection', function (socket) {
-    socket.on('out', function (data) {
-        createImage("in.png", data, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0], function(imageURL) {
-            socket.emit('in', imageURL);
-        });
+    socket.on('out', function (data, key, emitTo) {
+        if (key != null)
+        {
+            createImage("in.png", data, key, function(imageURL) {
+                io.to(emitTo).emit('in', imageURL);
+            });
+        }
     });
+    
+    socket.on('getKey', function(data) {
+        
+        var cookies = cookie.parse(data);
+        console.log(cookies)
+        for (x = 0; x <= groups.length; ++x)
+        {
+            if (groups[x] !== undefined && groups[x].Name == cookies.tempcookie)
+            {
+                socket.join(cookies.tempcookie);
+                socket.emit("gotInfo", cookies.tempcookie, groups[x].Key);
+                break;
+            }
+            
+            if (x == groups.length)
+                socket.emit("gotInfo", null, null);
+            
+        }
+        
+        });
+    
 });

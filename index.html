@@ -15,22 +15,22 @@
         <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
     </head>
     <body>
-        <nav class="navbar navbar-light gradient fixed-top">
-            <form class="form-inline my-2 my-lg-0">
-                <div class="input-group">
-                    <input type="text" class="form-control" id="groupcode" placeholder="Group Code">
+        <nav class="navbar navbar-light gradient fixed-top" onsubmit="submit_()">
+            <div class="form-inline my-2 my-lg-0" onsubmit="submit_()">
+                <div class="input-group" onsubmit="submit_()">
+                    <input type="text" class="form-control" onsubmit="submit_()" id="groupcode" placeholder="Group Code">
                     <div class="input-group-btn">
-                        <button id="dropdown1" type="button" onclick="submit()" class="btn btn-secondary"><i class="mdi mdi-check-circle-outline"></i></button>
-                        <button style="height:2.45em" type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button id="dropdown1" type="button" onclick="submit_()" class="btn btn-secondary"><i class="mdi mdi-check-circle-outline"></i></button>
+                        <button style="height:2.45em" onsubmit="submit_()" type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="sr-only">Toggle dropdown</span>
                         </button>
-                        <div class="dropdown-menu dropdown-menu-right">
+                        <div onsubmit="submit_()" class="dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" onclick="function2()">Join a group</a>
                             <a class="dropdown-item" onclick="function1()">Create a group</a>
                         </div>
                     </div>
                 </div>
-            </form>
+            </div>
             <a class="navbar-brand">Stegamsg</a>
         </nav>
         <script>
@@ -44,26 +44,33 @@
                 $("#dropdown1").html("<i class=\"mdi mdi-check-circle-outline\"></i>")
             }
             
-            function submit() {
-                document.cookie = "tempcookie=" + $("#groupcode").val();
-                document.cookie = "tempcookie2=" + a
-              
+            function submit_() {
                 if (a == 2) {
-                    var xhttp = new XMLHttpRequest();
-                    xhttp.onreadystatechange = function() {
+
+
+                        var xhttp = new XMLHttpRequest();
+                      xhttp.onreadystatechange = function() {
                         if (this.readyState == 4 && this.status == 200) {
-                            document.getElementById("demo").innerHTML = this.responseText;
+                          //
                         }
-                    };
-                    xhttp.open("POST", "/new", true);
-                    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                    xhttp.send("fname=Henry&lname=Ford");
+                      };
+                      xhttp.open("POST", "/new", false);
+                      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                      xhttp.send("groupname="+$("#groupcode").val());
+                        socket.emit("getKey", "tempcookie="+$("#groupcode").val()+";")
+                        $("#groupcode").val("")
+                        
+                } else {
+                    socket.emit("getKey", "tempcookie="+$("#groupcode").val()+";")
+                    $("#groupcode").val("")
                 }
-                window.location = "/";
             }
         </script>
         <div class="content-view">
             <div class="d-flex flex-column">
+                <div id="channel"></div>
+                <div id="key_"></div>
+                
                 <div id="canvases"></div>
             </div>
             <div class="footer navbar fixed-bottom">
@@ -123,26 +130,44 @@
         </script>
 
         <script>
-            var socket = io.connect('/');
-            
-            socket.on('in', function (fileName) {
-                getDataFromImage(fileName, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0], function(data) {
-                    $("#canvases").append("<div class=\"gradient message\" data-toggle=\"tooltip\"></div>");
-                    $("#canvases div:last-child").attr('title', data['Text']);
-                    var d = new Date();
-                    var dstr = "Sent at: " + d.getHours() + ":" + d.getMinutes();
-                    $("#canvases div:last-child").append("<p class=\"msg-timestamp\">" + dstr + "</p>");
-                    $("#canvases div:last-child").append(data['Canvas']);
-                    $('html, body').animate({scrollTop: $('#canvases').height()}, 1000);
-                });
-            });
-            
-            $('#textbox').keyup(function(e) {
-                if(e.keyCode == 13) {
-                    socket.emit('out', $("#textbox").val());
-                    $("#textbox").val("");
-                }
-            });
+
+    var socket = io.connect('/');
+    var KEY = []
+    var channelName_  = ""
+    
+    socket.on('in', function (fileName) {
+        getDataFromImage(fileName, KEY, function(data) {
+            $("#canvases").append(data['Canvas']);
+            $("#canvases").append(data['Text']);
+        });
+    });
+    
+    socket.on("gotInfo", function(channelName, key) {
+        KEY = key
+        
+        if (channelName != null)
+        {
+            $("#channel").html("Channel name: " + channelName)
+            $("#key_").html(JSON.stringify(key))
+        }
+        else
+        {
+            $("#channel").html("Error: Could not connect")
+            $("#key_").html("No Key")
+        }
+        
+        channelName_ = channelName
+        
+    });
+    
+    $('#textbox').keyup(function(e){
+        if(e.keyCode == 13)
+        {
+            socket.emit('out', $("#textbox").val(), KEY, channelName_);
+            $("#textbox").val("");
+        }
+    });
+    
         </script>
     </body>
 </html>
