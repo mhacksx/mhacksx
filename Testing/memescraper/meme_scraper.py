@@ -1,12 +1,19 @@
-import os, requests, bs4, time, urllib
+from PIL import Image
+import os, requests, bs4, time, sys
 
 while True:
 	imageFolder = ''
 	urlList = []
-	unique = False # Flag to see if new url has been added
 	scriptPath = os.path.dirname(__file__)
-	urlFileName = os.path.join(scriptPath, 'url_file.txt')
-	urlFileList = open(urlFileName, 'r+')
+	urlFileName = ''
+	if os.path.isfile(os.path.join(scriptPath, 'url_file.txt')):
+		urlFileName = os.path.join(scriptPath, 'url_file.txt')
+		urlFileList = open('url_file.txt', 'r+')
+		urlFileList2 = open('url_file.txt', 'a+')
+	else:
+		urlFileList = open('url_file.txt', 'w+')
+		urlFileName = os.path.join(scriptPath, 'url_file.txt')
+		urlFileList2 = open(urlFileName, 'a+')
 	numIterations = int(input('How many pages of memes do you want (max 5)? '))
 	if numIterations > 5 or numIterations < 1:
 		print('Please enter a number between 1 and 5 inclusive.')
@@ -20,34 +27,38 @@ if os.path.isdir(os.path.join(scriptPath, 'Images')):
 	imageFolder = os.path.join(scriptPath, 'Images')
 else:
 	imageFolder = str(os.makedirs(os.path.join(scriptPath, 'Images'))) # Creates folder to save images in.
-os.chdir(imageFolder)
+os.chdir(os.path.join(scriptPath, 'Images'))
 
 for h in range(numIterations):
-	res = requests.get(url)
-	res.raise_for_status()
+	try:
+		res = requests.get(url)
+		res.raise_for_status()
+	except requests.exceptions.HTTPError as err:
+		print("You've tried to access this content too many times. Please try again in a bit.")
+		break
 	soup = bs4.BeautifulSoup(res.text, 'html.parser')
 	tableElems = soup.select('#siteTable > div')
 	for i in range(len(tableElems)):
 		if len(tableElems[i].attrs) == 1 or tableElems[i].attrs['data-url'] in urlList:
 			continue
-		unique = True
 		imageURL = tableElems[i].attrs['data-url']
-		urlList.append('\n'+imageURL)
+		url = '\n' + imageURL
+		urlList.append(url)
+		urlFileList2.write(url)
 		imageRes = requests.get(imageURL)
 		imageFile = open(os.path.join(os.getcwd(), os.path.basename(imageURL)), 'wb')
 		print('Currently Downloading {}...'.format(os.path.basename(imageURL)))
 		for chunk in imageRes.iter_content(100000):
 			imageFile.write(chunk)
+		im = Image.open(os.path.join(os.getcwd(), os.path.basename(imageURL)))
+		if im.mode == 'RGB':
+			im.save(os.path.join(os.getcwd(), os.path.basename(imageURL)).replace('.jpg','.png'))
+			os.remove(os.path.join(os.getcwd(), os.path.basename(imageURL)))
 	nextButton = soup.select('.next-button > a')
 	url = nextButton[0].attrs['href']
-
-if unique:
-	urlFileList2 = open(urlFileName, 'w+')
-	for url in urlList:
-		urlFileList.write(url)
-	urlFileList2.close()
+urlFileList2.close()
 urlFileList.close()
+	
 
 
-		
     
