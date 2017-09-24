@@ -67,13 +67,16 @@
                 $('#canvases').empty();
             }
         </script>
-        <div class="content-view">
+        <div class="content-view container-fluid">
             <div class="d-flex flex-column">
                 <div id="channel"></div>
                 <div id="key_"></div>
                 
-                <div id="canvases"></div>
+                <div id="canvases">
+                    <!-- messages get appended to here -->
+                </div>
             </div>
+
             <div class="footer navbar fixed-bottom">
                 <input type="text" class="form-control align-bottom" placeholder="Enter a message..." id="textbox"></input>
             </div>
@@ -132,16 +135,28 @@
         var socket = io.connect('/');
         var KEY = []
         var channelName_  = ""
+        var isSent = false;
         
         socket.on('in', function (fileName) {
             getDataFromImage(fileName, KEY, function(data) {
-                 $("#canvases").append("<div class=\"gradient" + Math.floor(Math.random() * 15) + " message\" data-toggle=\"tooltip\"></div>");
-                 $("#canvases div:last-child").attr('title', data['Text']);
-                 var d = new Date();
-                 var dstr = "Sent at: " + d.getHours() + ":" + d.getMinutes();
-                 $("#canvases div:last-child").append("<p class=\"msg-timestamp\">" + dstr + "</p>");
-                 $("#canvases div:last-child").append(data['Canvas']);
-                 $('html, body').animate({scrollTop: $('#canvases').height()}, 1000);
+                // show messages on the right
+                var d = new Date();
+                var dstr = "Sent at: " + d.getHours() + ":" + d.getMinutes();
+                $("#canvases").append("<div class=\"clearfix\"></div>");
+                if (isSent) {
+                    $("#canvases .clearfix:last-child").html("<div class=\"gradient" + Math.floor(Math.random() * 15) + " float-right message\" data-toggle=\"tooltip\"></div>");
+                    $("#canvases .clearfix:last-child div").attr('title', data['Text']);
+                    $("#canvases .clearfix:last-child div").append("<p class=\"msg-timestamp\">" + dstr + "</p>");
+                    $("#canvases .clearfix:last-child div").append(data['Canvas']);
+
+                } else { // show messages on the left
+                    $("#canvases .clearfix:last-child").html("<div class=\"gradient" + Math.floor(Math.random() * 15) + " float-left message\" data-toggle=\"tooltip\"></div>");
+                    $("#canvases .clearfix:last-child div").attr('title', data['Text']);
+                    $("#canvases .clearfix:last-child div").append("<p class=\"msg-timestamp\">" + dstr + "</p>");
+                    $("#canvases .clearfix:last-child div").append(data['Canvas']);
+                }
+                $('html, body').animate({scrollTop: $('#canvases').height()}, 1000);
+                isSent = false;
             });
         });
         
@@ -163,6 +178,7 @@
         
         $('#textbox').keyup(function(e){
             if(e.keyCode == 13) {
+                isSent = true;
                 socket.emit('out', $("#textbox").val(), KEY, channelName_);
                 $("#textbox").val("");
             }
