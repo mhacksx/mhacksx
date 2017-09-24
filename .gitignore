@@ -1,5 +1,6 @@
 #
 static/*png
+*.sw[a-p]
 
 # Logs
 logs

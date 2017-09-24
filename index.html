@@ -15,10 +15,10 @@
         <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
     </head>
     <body>
-        <nav class="navbar navbar-light gradient fixed-top" onsubmit="submit_()">
-            <div class="form-inline my-2 my-lg-0" onsubmit="submit_()">
-                <div class="input-group" onsubmit="submit_()">
-                    <input type="text" class="form-control" onsubmit="submit_()" id="groupcode" placeholder="Group Code">
+        <nav class="navbar navbar-light gradient fixed-top">
+            <div class="form-inline my-2 my-lg-0">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="groupcode" placeholder="Group Code">
                     <div class="input-group-btn">
                         <button id="dropdown1" type="button" onclick="submit_()" class="btn btn-secondary"><i class="mdi mdi-check-circle-outline"></i></button>
                         <button style="height:2.45em" onsubmit="submit_()" type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -46,24 +46,25 @@
             
             function submit_() {
                 if (a == 2) {
-
-
-                        var xhttp = new XMLHttpRequest();
-                      xhttp.onreadystatechange = function() {
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function() {
                         if (this.readyState == 4 && this.status == 200) {
-                          //
                         }
-                      };
-                      xhttp.open("POST", "/new", false);
-                      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                      xhttp.send("groupname="+$("#groupcode").val());
-                        socket.emit("getKey", "tempcookie="+$("#groupcode").val()+";")
-                        $("#groupcode").val("")
-                        
+                    };
+                    xhttp.open("POST", "/new", false);
+                    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    xhttp.send("groupname="+$("#groupcode").val());
+                    socket.emit("getKey", "tempcookie="+$("#groupcode").val()+";")
+                    $("#groupcode").val("")
                 } else {
                     socket.emit("getKey", "tempcookie="+$("#groupcode").val()+";")
                     $("#groupcode").val("")
                 }
+                clrmsgs();
+            }
+
+            function clrmsgs() {
+                $('#canvases').empty();
             }
         </script>
         <div class="content-view">
@@ -80,7 +81,6 @@
         </div>
 
         <!-- bootstrap  stuff -->
-        <script>window.jQuery || document.write('<script src="bootstrap-4.0.0-beta/assets/js/vendor/jquery.min.js"><\/script>')</script>
         <script src="bootstrap-4.0.0-beta/assets/js/vendor/popper.min.js"></script>
         <script src="bootstrap-4.0.0-beta/dist/js/bootstrap.min.js"></script>
         <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
@@ -130,44 +130,44 @@
         </script>
 
         <script>
-
-    var socket = io.connect('/');
-    var KEY = []
-    var channelName_  = ""
-    
-    socket.on('in', function (fileName) {
-        getDataFromImage(fileName, KEY, function(data) {
-            $("#canvases").append(data['Canvas']);
-            $("#canvases").append(data['Text']);
+        var socket = io.connect('/');
+        var KEY = []
+        var channelName_  = ""
+        
+        socket.on('in', function (fileName) {
+            getDataFromImage(fileName, KEY, function(data) {
+                 $("#canvases").append("<div class=\"gradient message\" data-toggle=\"tooltip\"></div>");
+                 $("#canvases div:last-child").attr('title', data['Text']);
+                 var d = new Date();
+                 var dstr = "Sent at: " + d.getHours() + ":" + d.getMinutes();
+                 $("#canvases div:last-child").append("<p class=\"msg-timestamp\">" + dstr + "</p>");
+                 $("#canvases div:last-child").append(data['Canvas']);
+                 $('html, body').animate({scrollTop: $('#canvases').height()}, 1000);
+            });
         });
-    });
-    
-    socket.on("gotInfo", function(channelName, key) {
-        KEY = key
         
-        if (channelName != null)
-        {
-            $("#channel").html("Channel name: " + channelName)
-            $("#key_").html(JSON.stringify(key))
-        }
-        else
-        {
-            $("#channel").html("Error: Could not connect")
-            $("#key_").html("No Key")
-        }
+        socket.on("gotInfo", function(channelName, key) {
+            KEY = key
+            
+            if (channelName != null) {
+                $("#channel").html("Channel name: " + channelName)
+                $("#key_").html(JSON.stringify(key))
+            }
+            else {
+                $("#channel").html("Error: Could not connect")
+                $("#key_").html("No Key")
+            }
+            
+            channelName_ = channelName
+            
+        });
         
-        channelName_ = channelName
-        
-    });
-    
-    $('#textbox').keyup(function(e){
-        if(e.keyCode == 13)
-        {
-            socket.emit('out', $("#textbox").val(), KEY, channelName_);
-            $("#textbox").val("");
-        }
-    });
-    
+        $('#textbox').keyup(function(e){
+            if(e.keyCode == 13) {
+                socket.emit('out', $("#textbox").val(), KEY, channelName_);
+                $("#textbox").val("");
+            }
+        });
         </script>
     </body>
 </html>
