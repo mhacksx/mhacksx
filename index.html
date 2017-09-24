@@ -21,7 +21,7 @@
                 <div class="input-group">
                     <input type="text" class="form-control" id="groupcode" placeholder="Group Code">
                     <div class="input-group-btn">
-                        <button id="dropdown1" type="button" onclick="submit_()" class="btn btn-outline"><i class="mdi mdi-check-circle-outline"></i></button>
+                        <button id="dropdown1" type="button" onclick="submit_()" class="btn btn-midcap"><i class="mdi mdi-check-circle-outline"></i></button>
                         <button onsubmit="submit_()" type="button" class="btn btn-endcap dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="sr-only">Toggle dropdown</span>
                         </button>
@@ -35,8 +35,8 @@
             <a class="navbar-brand">Stegamsg</a>
             
             <div class="form-inline">
-                <a class="btn btn-outline-success my-2 my-sm-0" target="_blank" href="https://github.com/mhacksx/mhacksx">Github</a>
-                <a class="btn btn-outline-success my-2 my-sm-0" target="_blank" href="https://devpost.com/software/stegamsg">Devpost</a>
+                <a style="margin-right:0.5em" class="btn btn-outline-dark my-2 my-sm-0" target="_blank" href="https://github.com/mhacksx/mhacksx">Github</a>
+                <a class="btn btn-outline-dark my-2 my-sm-0" target="_blank" href="https://devpost.com/software/stegamsg">Devpost</a>
             </div>
         </nav>
         <script>
@@ -93,7 +93,8 @@
         <script src="bootstrap-4.0.0-beta/dist/js/bootstrap.min.js"></script>
         <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
         <script src="bootstrap-4.0.0-beta/assets/js/ie10-viewport-bug-workaround.js"></script>
-
+        <!-- other stuff -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
         <!-- scripts to communicate with node -->
         <script src="lsbtools.min.js"></script>
         <script>
@@ -147,20 +148,17 @@
             getDataFromImage(fileName, KEY, function(data) {
                 // show messages on the right
                 var d = new Date();
-                var dstr = "Sent at: " + d.getHours() + ":" + d.getMinutes();
+                var dstr = moment().format('Do MMMM, HH:mm');
                 $("#canvases").append("<div class=\"clearfix\"></div>");
                 if (isSent) {
                     $("#canvases .clearfix:last-child").html("<div class=\"gradient" + Math.floor(Math.random() * 15) + " float-right message\" data-toggle=\"tooltip\"></div>");
-                    $("#canvases .clearfix:last-child div").attr('title', data['Text']);
-                    $("#canvases .clearfix:last-child div").append("<p class=\"msg-timestamp\">" + dstr + "</p>");
-                    $("#canvases .clearfix:last-child div").append(data['Canvas']);
 
                 } else { // show messages on the left
                     $("#canvases .clearfix:last-child").html("<div class=\"gradient" + Math.floor(Math.random() * 15) + " float-left message\" data-toggle=\"tooltip\"></div>");
+                }
                     $("#canvases .clearfix:last-child div").attr('title', data['Text']);
                     $("#canvases .clearfix:last-child div").append("<p class=\"msg-timestamp\">" + dstr + "</p>");
                     $("#canvases .clearfix:last-child div").append(data['Canvas']);
-                }
                 $('html, body').animate({scrollTop: $('#canvases').height()}, 1000);
                 isSent = false;
             });

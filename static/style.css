@@ -118,8 +118,8 @@ input[type="text"] {
 input[type="text"]:focus {
     border-color: #3b3b3b;
 }
-.btn-outline {
-    border-width: 4px 2px 4px 2px;
+.btn-midcap {
+    border-width: 4px 2px 4px 0px;
     height: 50px;
     border-color: #212121;
 }
@@ -127,4 +127,8 @@ input[type="text"]:focus {
     border-width: 4px 4px 4px 2px;
     height: 50px;
     border-color: #212121;
+}
+.btn-outline {
+    border-width: 4px;
+    border-radius: 1em;
 }
