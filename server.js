@@ -108,14 +108,18 @@ io.on('connection', function (socket) {
     socket.on('out', function (data, key, emitTo) {
         if (key != null)
         {
-            createImage("in.png", data, key, function(imageURL) {
+            createImage("./static/memes/" + Math.floor(Math.random() * 27) + ".png", data, key, function(imageURL) {
                 io.to(emitTo).emit('in', imageURL);
+                
+                setTimeout(function () {
+                    fs.unlinkSync("./static" + imageURL);
+                }, 4000); 
+
             });
         }
     });
     
     socket.on('getKey', function(data) {
-        
         var cookies = cookie.parse(data);
         console.log(cookies)
         for (x = 0; x <= groups.length; ++x)
