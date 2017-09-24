@@ -15,7 +15,7 @@
         <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
     </head>
     <body>
-        <nav class="navbar navbar-light gradient fixed-top">
+        <nav class="navbar navbar-light gradient0 fixed-top">
             <div class="form-inline my-2 my-lg-0">
                 <div class="input-group">
                     <input type="text" class="form-control" id="groupcode" placeholder="Group Code">
@@ -77,7 +77,6 @@
             <div class="footer navbar fixed-bottom">
                 <input type="text" class="form-control align-bottom" placeholder="Enter a message..." id="textbox"></input>
             </div>
-
         </div>
 
         <!-- bootstrap  stuff -->
@@ -136,7 +135,7 @@
         
         socket.on('in', function (fileName) {
             getDataFromImage(fileName, KEY, function(data) {
-                 $("#canvases").append("<div class=\"gradient message\" data-toggle=\"tooltip\"></div>");
+                 $("#canvases").append("<div class=\"gradient" + Math.floor(Math.random() * 15) + " message\" data-toggle=\"tooltip\"></div>");
                  $("#canvases div:last-child").attr('title', data['Text']);
                  var d = new Date();
                  var dstr = "Sent at: " + d.getHours() + ":" + d.getMinutes();
